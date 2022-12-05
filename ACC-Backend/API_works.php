@@ -4,7 +4,7 @@
     include('DbConnection.php');
 
     class API {
-        public function generateAPI(){
+        public static function generateAPIToken(){
                 //Generate a random string.
                 $token = openssl_random_pseudo_bytes(32);
                 
@@ -12,32 +12,29 @@
                 $token = bin2hex($token);
                 
                 //Print it out for example purposes.
-                return $token;
+                return (string)$token;
         }
 
-        public function saveToken($email, $phone, $save_or_update=True){
+        public function saveToken($email, $save_or_update=True){
             $db = new DbConnect(); 
             $connection = $db->connect();
             $table_name = "user_tokens";
             
-
             if($db->get_conn_id() != 1){
-                echo "Database Connection Failed\n".$db->get_conn_text();
-                return;
+                return "Database Connection Failed\n".$db->get_conn_text();
             }
 
             //-- sanitizing strings
             $email    = htmlspecialchars(strip_tags($email));
-            $phone    = htmlspecialchars(strip_tags($phone));
 
-            if(empty($email) || empty($phone)){
+            if(empty($email)){
                 return "NULL values not allowed";
             }
 
             //-- check to prevent duplicates
-            $dup_query = sprintf("SELECT * FROM %s WHERE EMAIL=? OR PHONE=?",$table_name);
+            $dup_query = sprintf("SELECT * FROM %s WHERE EMAIL=?",$table_name);
             $obj = $connection->prepare($dup_query);
-            $obj->bind_param("si",$email,$phone);
+            $obj->bind_param("s",$email);
 
             if(!$obj->execute()){
                 return "An unknown error occured!";
@@ -51,14 +48,65 @@
             }
 
             if(!$save_or_update && $result_number <= 0 ){
-                return "Does not have a token";
+                return "No Token exists";
             }
 
-            echo "good to go";
+            // we either update or save new to database
+            $query = ($save_or_update)?sprintf("INSERT INTO %s SET EMAIL =?, TOKEN=?",$table_name):sprintf("UPDATE  %s SET TOKEN=? WHERE EMAIL=?",$table_name);
+            $stmt = $connection->prepare($query);
 
+            //============ in the future.. we will explore security tight procedures to save and retrieve api tokens================
+            $gen_token = $this->generateAPIToken();
+
+            if($save_or_update){
+                $stmt->bind_param("ss",$email,$gen_token);
+            }else{
+                $stmt->bind_param("ss",$gen_token,$email);
+            }
+
+            return ($stmt->execute())?(($save_or_update)?"Token generated successfully":"Token updated successfully"):"api token operation failed!";
+        }
+
+        public function verifyToken($token){
+
+            //--we return the email of the user if the token is done
+            $db = new DbConnect(); 
+            $connection = $db->connect();
+            $table_name = "user_tokens";
+            
+            if($db->get_conn_id() != 1){
+                return "Database Connection Failed\n".$db->get_conn_text();
+            }
+
+            //-- sanitizing strings
+            $token    = htmlspecialchars(strip_tags($token));
+
+            if(empty($token)){
+                return "NULL values not allowed";
+            }
+
+            //-- check to prevent duplicates
+            $dup_query = sprintf("SELECT * FROM %s WHERE TOKEN=?",$table_name);
+            $obj = $connection->prepare($dup_query);
+            $obj->bind_param("s",$token);
+
+            if(!$obj->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result = $obj->get_result();
+            $result_number = mysqli_num_rows($result);
+
+            if($result_number < 0 ){
+                return NULL; //meaning there is no data
+            }
+            
+            
+            return "OKAY";   
         }
     }
 
-
     $api = new API();
-    echo $api->saveToken('raphael@gmail.com',549022485);
+    echo $api->saveToken('raphael@gmail.com',true);
+    echo "\n";
+    echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');
