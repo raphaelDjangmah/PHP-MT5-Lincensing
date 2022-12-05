@@ -11,8 +11,35 @@
                 //Convert the binary data into hexadecimal representation.
                 $token = bin2hex($token);
                 
-                //Print it out for example purposes.
-                return (string)$token;
+
+                //to be sure a token does not already exists, we continously check if the generated token against the db
+                $db = new DbConnect(); 
+                $connection = $db->connect();
+                $table_name = "user_tokens";
+                $dup_query = sprintf("SELECT TOKEN FROM %s",$table_name);
+                $obj = $connection->prepare($dup_query);
+                
+                if(!$obj->execute()){
+                    return "-1";
+                }
+                $result = $obj->get_result();
+
+                $already_exists = false;
+                while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
+                    foreach ($row as $r) {
+                        if($r == $token){
+                            $already_exists = true;
+                            break;
+                        }
+                    }
+                }
+
+
+                if($already_exists){
+                    $this->generateAPIToken();
+                }
+                
+            return (string)$token;
         }
 
         public function saveToken($email, $save_or_update=True){
@@ -101,12 +128,21 @@
                 return NULL; //meaning there is no data
             }
             
-            
-            return "OKAY";   
+            //-- looping through the result.. but since it is a specific query, we will get only 1
+            $mail = "";
+            while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
+                foreach ($row as $r) {
+                    $mail = $r;
+                    break;
+                }
+            }
+
+            return $mail;   
         }
     }
 
     $api = new API();
+
     echo $api->saveToken('raphael@gmail.com',true);
-    echo "\n";
+    echo "<br/>";
     echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');
