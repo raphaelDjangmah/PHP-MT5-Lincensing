@@ -1,5 +1,7 @@
 <?php
 
+echo strlen('ac8172ce4ebd7636e521dacc9ffdb534e27496ca8faeb82500d3fd32b88f7178');
+
 //Generate a random string.
 $token = openssl_random_pseudo_bytes(32);
  
