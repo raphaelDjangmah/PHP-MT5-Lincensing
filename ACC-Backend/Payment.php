@@ -146,6 +146,6 @@
         }
     }
 
-    $pay = new Payments();
-    echo $pay->subscribe('raphael@gmail.com',12.90,45);
-    echo $pay->subscription_status('raphael@gmail.com');
+    // $pay = new Payments();
+    // echo $pay->subscribe('raphael@gmail.com',12.90,45);
+    // echo $pay->subscription_status('raphael@gmail.com');
