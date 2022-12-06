@@ -2,6 +2,7 @@
 
     //-- database connection
     require('DbConnection.php');
+    date_default_timezone_set('Africa/Accra');
 
     class USERS{
         public function create_user($email, $password,$phone,$country){
@@ -20,7 +21,7 @@
             $password = htmlspecialchars(strip_tags($password));
             $phone    = htmlspecialchars(strip_tags($phone));
             $country  = htmlspecialchars(strip_tags($country));
-            $date     = date('m/d/Y h:i:s a', time());
+            $date     = time();
 
 
             if(empty($email) || empty($password) || empty($phone) || empty($country)){
@@ -46,7 +47,7 @@
             $password   = password_hash($password, PASSWORD_BCRYPT);
             $ins_query = sprintf("INSERT INTO %s SET EMAIL=?, PASSWORD=?, PHONE=?, DATE_CREATED=?, COUNTRY=?",$table_name);
             $stmt  = $connection->prepare($ins_query);
-            $stmt->bind_param('ssiss',$email,$password,$phone,$date,$country);
+            $stmt->bind_param('ssiis',$email,$password,$phone,$date,$country);
 
             if(!$stmt->execute()){
                 return "An error occured in inserting data";
@@ -58,4 +59,4 @@
 
 
 $users = new USERS();
-echo $users->create_user('raphael@gmail.com','my-password',549022485,'dema');
+echo $users->create_user('raphael@gmail.com','my-password',549022485,'Ghana');

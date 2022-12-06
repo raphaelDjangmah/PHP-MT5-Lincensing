@@ -1,16 +1,12 @@
 <?php
 
-echo strlen('ac8172ce4ebd7636e521dacc9ffdb534e27496ca8faeb82500d3fd32b88f7178');
+date_default_timezone_set('Africa/Accra');
+$date_a = date('m/d/Y h:i:s a',1670336093);
+$date_b = date('m/d/Y h:i:s a',time());
 
-//Generate a random string.
-$token = openssl_random_pseudo_bytes(32);
- 
-//Convert the binary data into hexadecimal representation.
-$token = bin2hex($token);
- 
-//Print it out for example purposes.
-echo $token;
-return;
+echo time() - 1670336093;
+
+return; 
 
 
   if($_SERVER['REQUEST_METHOD'] == 'GET'){
@@ -22,3 +18,4 @@ return;
         echo "POST -> not seen";
     }
   }
+
