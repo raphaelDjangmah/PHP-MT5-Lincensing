@@ -58,6 +58,24 @@
                 return "NULL values not allowed";
             }
 
+
+
+            //making the email exists
+            $e_query = sprintf("SELECT * FROM %s WHERE EMAIL=?","user_registration");
+            $obj_ = $connection->prepare($e_query);
+            $obj_->bind_param("s",$email);
+
+            if(!$obj_->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result_ = $obj_->get_result();
+            $result_number_ = mysqli_num_rows($result_);
+
+            if($result_number_ <= 0 ){
+                return "Invalid account email";
+            }
+
             //-- check to prevent duplicates
             $dup_query = sprintf("SELECT * FROM %s WHERE EMAIL=?",$table_name);
             $obj = $connection->prepare($dup_query);
@@ -71,7 +89,7 @@
             $result_number = mysqli_num_rows($result);
 
             if($save_or_update && $result_number > 0 ){
-                return "Token already exists";
+                return "Token already exists this account";
             }
 
             if(!$save_or_update && $result_number <= 0 ){
@@ -141,8 +159,8 @@
         }
     }
 
-    //$api = new API();
+    $api = new API();
 
-    //echo $api->saveToken('raphael@gmail.com',true);
+    echo $api->saveToken('raphal@gmail.com',true);
     //echo "<br/>";
     //echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');
