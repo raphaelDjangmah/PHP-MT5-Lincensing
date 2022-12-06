@@ -1,7 +1,7 @@
 <?php
 
     //-- database connection
-    include('DbConnection.php');
+    require_once('DbConnection.php');
 
     class API {
         public static function generateAPIToken(){
@@ -161,6 +161,6 @@
 
     $api = new API();
 
-    echo $api->saveToken('raphal@gmail.com',true);
-    //echo "<br/>";
-    //echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');
+    //echo $api->saveToken('raphael@gmail.com',true);
+    // //echo "<br/>";
+    // echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');

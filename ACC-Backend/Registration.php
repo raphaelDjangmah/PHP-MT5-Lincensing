@@ -1,7 +1,7 @@
 <?php
 
     //-- database connection
-    require('DbConnection.php');
+    require_once('DbConnection.php');
     date_default_timezone_set('Africa/Accra');
 
     class USERS{
@@ -58,5 +58,5 @@
     }
 
 
-$users = new USERS();
-echo $users->create_user('raphael@gmail.com','my-password',549022485,'Ghana');
+// $users = new USERS();
+// echo $users->create_user('raphael@gmail.com','my-password',549022485,'Ghana');
