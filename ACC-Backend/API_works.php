@@ -5,6 +5,9 @@
 
     class API {
         public static function generateAPIToken(){
+
+                //token will be returned else error
+
                 //Generate a random string.
                 $token = openssl_random_pseudo_bytes(32);
                 
@@ -20,7 +23,7 @@
                 $obj = $connection->prepare($dup_query);
                 
                 if(!$obj->execute()){
-                    return "-1";
+                    return "An unknown error occured";
                 }
                 $result = $obj->get_result();
 
@@ -43,6 +46,9 @@
         }
 
         public function saveToken($email, $save_or_update=True){
+
+            //-- generated token will be returned upon successfull.. else error
+
             $db = new DbConnect(); 
             $connection = $db->connect();
             $table_name = "user_tokens";
@@ -109,12 +115,12 @@
                 $stmt->bind_param("ss",$gen_token,$email);
             }
 
-            return ($stmt->execute())?(($save_or_update)?"Token generated successfully":"Token updated successfully"):"api token operation failed!";
+            return ($stmt->execute())?(($save_or_update)?$gen_token:$gen_token):"api token operation failed!";
         }
 
         public function verifyToken($token){
 
-            //--we return the email of the user if the token is done
+            //- RETURN: if successfull, the email of the token will be returned else error text 
             $db = new DbConnect(); 
             $connection = $db->connect();
             $table_name = "user_tokens";

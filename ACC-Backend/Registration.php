@@ -5,7 +5,11 @@
     date_default_timezone_set('Africa/Accra');
 
     class USERS{
+        
         public function create_user($email, $password,$phone,$country){
+
+            //-- return 1 for successfully creating user else error text
+
             $db = new DbConnect(); 
             $connection = $db->connect();
             $table_name = "user_registration";
@@ -53,7 +57,7 @@
                 return "An error occured in inserting data";
             }
             
-            return "Data inserted successfully";
+            return 1;
         }
     }
 

@@ -5,10 +5,13 @@
     date_default_timezone_set('Africa/Accra');
 
     class Subscriptions{
+
+        //-- return 1 for successfull subscription, else error text
+
         public function subscribe($email, $amount_paid, $package, $save_or_update=TRUE){
             $db = new DbConnect(); 
             $connection = $db->connect();
-            $table_name = "user_payment";
+            $table_name = "user_subscriptions";
             
 
             if($db->get_conn_id() != 1){
@@ -73,14 +76,17 @@
                 return "Subscription Failed!";
             }
             
-            return "Subscription done successfully";
+            return 1;
         }
 
 
         public function subscription_status($email){
+
+            //-- return 0=not subscribed, -1=expired, 1=active user else error return text                
+
             $db = new DbConnect(); 
             $connection = $db->connect();
-            $table_name = "user_payment";
+            $table_name = "user_subscriptions";
             
 
             if($db->get_conn_id() != 1){
@@ -146,6 +152,6 @@
         }
     }
 
-    // $pay = new Payments();
+    // $pay = new Subscriptions();
     // echo $pay->subscribe('raphael@gmail.com',12.90,45);
     // echo $pay->subscription_status('raphael@gmail.com');
