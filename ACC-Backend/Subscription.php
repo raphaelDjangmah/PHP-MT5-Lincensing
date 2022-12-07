@@ -82,7 +82,7 @@
 
         public function subscription_status($email){
 
-            //-- return 0=not subscribed, -1=expired, 1=active user else error return text                
+            //-- return 0=not subscribed, neg expiry=expired, pos expiry=active user else error return text                
 
             $db = new DbConnect(); 
             $connection = $db->connect();
@@ -145,13 +145,84 @@
             //get the amount of seconds from the number of days. return -1 for expired subscriptions
             $expiry = $sub_dates + $sub_days * 86400;
             if(time()>$expiry){ 
-                return -1;
+                return -1 * $expiry;
             }
 
+            return $expiry;
+        }
+
+
+        public function terminate_subscription($email){
+            $db = new DbConnect(); 
+            $connection = $db->connect();
+            $table_name = "user_subscriptions";
+            
+
+            if($db->get_conn_id() != 1){
+                echo "Database Connection Failed\n".$db->get_conn_text();
+                return;
+            }
+
+            //-- sanitizing strings
+            $email         = htmlspecialchars(strip_tags($email));
+            $date_paid     = time();
+
+
+            if(empty($email)){
+                return "NULL values not allowed";
+            }
+
+            //-- making sure account is valid
+            $dup_query = sprintf("SELECT * FROM %s WHERE EMAIL=?","user_registration");
+            $obj = $connection->prepare($dup_query);
+            $obj->bind_param("s",$email);
+
+            if(!$obj->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result = $obj->get_result();
+            $result_number = mysqli_num_rows($result);
+            if($result_number <= 0 ){
+                return "This user is unrecognized"; 
+            }
+
+            //preventing duplicate payment
+            $dup_query = sprintf("SELECT * FROM %s WHERE EMAIL=?",$table_name);
+            $obj = $connection->prepare($dup_query);
+            $obj->bind_param("s",$email);
+
+            if(!$obj->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result = $obj->get_result();
+            $result_number = mysqli_num_rows($result);
+
+            if($result_number == 0 || $this->subscription_status($email)==0){
+                return "No active subscription"; 
+            }
+
+            if($this->subscription_status($email)<0){
+                return "Subscription expired already";
+            }
+
+            //-- inserting or updating 
+            $ins_query = sprintf("UPDATE %s  SET DATE_PAID=?, PACKAGE=? WHERE EMAIL=?",$table_name);
+            $stmt  = $connection->prepare($ins_query);
+            $zero = 0;
+            $stmt->bind_param('iis',$date_paid,$zero,$email);
+
+            if(!$stmt->execute()){
+                return "Terminating Subscription failed";
+            }
+            
             return 1;
         }
     }
 
-    // $pay = new Subscriptions();
-    // echo $pay->subscribe('raphael@gmail.com',12.90,45);
-    // echo $pay->subscription_status('raphael@gmail.com');
+    $pay = new Subscriptions();
+    echo $pay->subscribe('raphael@gmail.com',12.90,45);
+//    echo $pay->terminate_subscription('raphael@gmail.com');
+
+    //echo date('d-m-y h:i:s',1671349848);
