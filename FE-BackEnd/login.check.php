@@ -1,5 +1,5 @@
 <?php
-    require "../ACC-Backend/registration.php";
+    require "../ACC-Backend/Registration.php";
 
     function login_checker(){
         //- request method must be pose
@@ -13,11 +13,15 @@
         }
     
         //-- get details from user
-        $email = (isset($_POST['user_email']))?$email:"";
-        $password = (isset($_POST['user_pass']))?$password:"";
-    
-        return "Details-> ".$email."  ".$password;
+        $email = (isset($_POST['user_email']))?$_POST['user_email']:"";
+        $password = (isset($_POST['user_pass']))?$_POST['user_pass']:"";
+
+        //-- login
+        $user = new USERS();
+        return $user->verify_user($email,$password);
+
     }
 
-    
-echo login_checker();
+
+//--redirecting back to page with details
+header('location:../FrontENDS/signinsignup/login.php?login_check_message='+login_checker())
