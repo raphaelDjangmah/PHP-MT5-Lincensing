@@ -1,6 +1,6 @@
 <?php session_start();
 	if(isset($_SESSION['user_logged_in'])){
-		header('location:user_dashboard.html');
+		header('location:../dashboards/user_dashboard.html');
 	}
 ?>
 <!DOCTYPE html>
@@ -51,7 +51,7 @@
 											echo "<p style='color:lime'>Login Successfull</p>";
 											
 											//--redirect to homepage
-											header('location:user_dashboard.html');
+											header('location:../dashboard/user_dashboard.html');
 										}
 									}
 								}
