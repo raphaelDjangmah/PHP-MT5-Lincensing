@@ -171,10 +171,6 @@ iframe {
   min-width: 10vmin;
   background: #c2bf8d;
   background-image: url('../../assets/img/hero-bg-c.png') ;
-  /* background: -webkit-linear-gradient(-135deg, #c850c0, #4158d0);
-  background: -o-linear-gradient(-135deg, #c850c0, #4158d0);
-  background: -moz-linear-gradient(-135deg, #c850c0, #4158d0);
-  background: linear-gradient(-135deg, #c850c0, #4158d0); */
 }
 
 .wrap-login100 {
