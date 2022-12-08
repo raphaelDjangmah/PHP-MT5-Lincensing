@@ -59,8 +59,60 @@
             
             return 1;
         }
+
+
+        public function verify_user($email,$password){
+            
+            //-- return 1 for successfully creating user else error text
+            $db = new DbConnect(); 
+            $connection = $db->connect();
+            $table_name = "user_registration";
+            
+
+            if($db->get_conn_id() != 1){
+                echo "Database Connection Failed\n".$db->get_conn_text();
+                return;
+            }
+
+            //-- sanitizing strings
+            $email    = htmlspecialchars(strip_tags($email));
+            $password = htmlspecialchars(strip_tags($password));
+
+            if(empty($email) || empty($password)){
+                return "NULL values not allowed";
+            }
+
+            //-- get email and password
+            $dup_query = sprintf("SELECT PASSWORD FROM %s WHERE EMAIL=?",$table_name);
+            $obj = $connection->prepare($dup_query);
+            $obj->bind_param("s",$email);
+
+            if(!$obj->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result = $obj->get_result();
+            $result_number = mysqli_num_rows($result);
+            if($result_number == 0 ){
+                return "Email does not exist";
+            }
+
+            $hashed = "";
+            //-- verify hashed password
+            while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
+                $hashed = $row[0];
+            }
+            
+            if(!password_verify($password,$hashed)){
+                return "Password Incorrect";
+            }
+
+            return 1;
+
+        }
     }
 
 
-// $users = new USERS();
+//$users = new USERS();
+//echo $users->verify_user('raphael@gmail.com','my-password');
 // echo $users->create_user('raphael@gmail.com','my-password',549022485,'Ghana');

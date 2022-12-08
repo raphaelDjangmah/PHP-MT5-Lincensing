@@ -1,12 +1,9 @@
 <?php
 
-echo abs(-100);
 
-return;
-date_default_timezone_set('Africa/Accra');
-$date_a = date('m/d/Y h:i:s a',1670336093);
-$date_b = date('m/d/Y h:i:s a',time());
+    $password = "dasilva";
+    $password_b = 'my-password';
 
-echo time() - 1670336093;
-
-return; 
+    echo password_verify($password,'$2y$10$QQITUK/U41x.PASzVac7GeoDhR7cZ1qYyar2SP2b6bqEI6sM9KUs2');
+    echo "<br>";
+    echo password_verify($password_b,'$2y$10$QQITUK/U41x.PASzVac7GeoDhR7cZ1qYyar2SP2b6bqEI6sM9KUs2');
