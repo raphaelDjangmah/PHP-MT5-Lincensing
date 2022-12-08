@@ -221,8 +221,8 @@
         }
     }
 
-    $pay = new Subscriptions();
-    echo $pay->subscribe('raphael@gmail.com',12.90,45);
+    //$pay = new Subscriptions();
+    //echo $pay->subscribe('raphael@gmail.com',12.90,45);
 //    echo $pay->terminate_subscription('raphael@gmail.com');
 
     //echo date('d-m-y h:i:s',1671349848);
