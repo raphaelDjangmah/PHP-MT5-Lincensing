@@ -1,4 +1,8 @@
-<?php ?>
+<?php session_start();
+	if(isset($_SESSION['user_logged_in'])){
+		header('location:user_dashboard.html');
+	}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,10 +39,21 @@
 						Member Login
 					</span>
 
-					<div id="errorMessage" class="text-center p-b-10 text-danger font-weight-bold">
+					<div id="errorMessage" class="text-center p-b-20 text-danger font-weight-bold">
 							<?php
 								if(isset($_GET['login_check_message'])){
-									echo $_GET['login_check_message'];
+									//-- if 1 then successfully logged in
+									if($_GET['login_check_message']!='1'){
+										echo $_GET['login_check_message'];
+									}else{
+										//--get if the session exists
+										if(isset($_SESSION['user_logged_in'])){
+											echo "<p style='color:lime'>Login Successfull</p>";
+											
+											//--redirect to homepage
+											header('location:user_dashboard.html');
+										}
+									}
 								}
 							?>
 					 </div>
