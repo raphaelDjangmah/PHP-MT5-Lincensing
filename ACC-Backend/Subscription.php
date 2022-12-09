@@ -57,9 +57,16 @@
             $result = $obj->get_result();
             $result_number = mysqli_num_rows($result);
 
-            if($result_number > 0 && $save_or_update){
+            $status = $this->subscription_status($email);
+
+            //-- if the subscription is active, return else update
+            if($status > 0){
                 return "You already have an active subscription"; 
+            }else if ($status <0){
+                $save_or_update = false;
             }
+
+
 
             //-- inserting or updating 
             $ins_query = ($save_or_update)?sprintf("INSERT INTO %s SET EMAIL=?, AMOUNT_PAID=?, DATE_PAID=?, PACKAGE=?",$table_name):sprintf("UPDATE %s  SET AMOUNT_PAID=?, DATE_PAID=?, PACKAGE=? WHERE EMAIL=?",$table_name);
@@ -68,7 +75,7 @@
             if($save_or_update){
                 $stmt->bind_param('sdii',$email,$amount_paid,$date_paid,$package);
             }else{
-                $stmt->bind_param('diis',$email,$amount_paid,$date_paid,$package);
+                $stmt->bind_param('diis',$amount_paid,$date_paid,$package,$email);
             }
 
             if(!$stmt->execute()){

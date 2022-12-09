@@ -12,11 +12,34 @@
         $email = $_SESSION['user_logged_in'];
     }
 
-    //getting the subscription details
+
+    //-- if request to generate new API Key
+    if(isset($_GET['api_key_gen'])){
+        //-- 
+        require_once('../../ACC-Backend/API_works.php');
+        $subs    = new API();
+        $return  = $subs->saveToken($email,FALSE);
+
+        if($return>0){
+            header('location:api_show_key.php');
+        }
+    }
+
+
+    //get the api key
     //save subscription details to database
-    require_once('../../ACC-Backend/Subscription.php');
-    $subs    = new Subscriptions();
-    $return  = intval($subs->subscription_status($email));
+    require_once('../../ACC-Backend/API_works.php');
+    $subs    = new API();
+    $return  = $subs->showAPI($email);
+    $api = "";
+
+
+    if($return<0){
+        $api = "No active API Key";
+    }else{
+        $api = "You already have an active API Key";
+    }
+
 
     function logout(){
         //-- destroy all sessions and redirect to login page
@@ -71,7 +94,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item ">
                 <a class="nav-link" href="user_dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -86,7 +109,7 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item" >
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
@@ -101,8 +124,9 @@
                 </div>
             </li>
 
+            
               <!-- Nav Item - Pages Collapse Menu -->
-              <li class="nav-item">
+              <li class="nav-item active">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-wrench"></i>
@@ -112,7 +136,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">API Token</h6>
                         <a class="collapse-item" href="api_show_key.php">Show my API</a>
-                        <a class="collapse-item" href="api_gen_key.php">Generate API</a>
+                        <a class="collapse-item" href="">Generate API</a>
                 </div>
             </li>
 
@@ -143,7 +167,7 @@
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="user_dashboard.php?logout" 
+                <a class="nav-link collapsed" href="api_gen_key.php?logout" 
                     aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-arrow-left"></i>
                     <span>Logout</span>
@@ -156,7 +180,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
 
             <!-- Main Content -->
-            <div id="content">
+            <div id="content"> 
 
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -168,6 +192,30 @@
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Search for..." aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
 
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
@@ -252,117 +300,48 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
-                    </div>
+                    <h4 class="h3 mb-0 text-gray-500">API SETTINGS</h4> <br>
 
                     <!-- Content Row -->
                     <div class="row">
 
                         <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                PnL By BOT</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">$0.00</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- SOLVE CHALLENGE OF NOT PASSING IT THROUGH A GETTER WHERE PRICE AND PACKAGE CAN BE EASILY ALTERED -->
+                        <div class="col-12 col-12 mb-4">
+                            <div class="card border-left-light shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    YOUR API TOKEN
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                    <?php echo $api;
 
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Subscription Status</div>
-                                                <?php
                                                     if($return>0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-success">ACTIVE</div>';
-                                                    }else if($return<0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-danger"> EXPIRED </div>';
-                                                    }else{
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-secondary">NOT SUBSCRIBED</div>';
-                                                    }
-                                                ?>
-                                                
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                                     echo '
+                                                     <br><br/>
+                                                     <a href="api_show_key.php" class="btn btn-sm btn-secondary shadow-sm">
+                                                     <i class="fas fa-eye fa-sm text-white-50"></i> View Key</a>
 
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-12 mb-4">
-                            <div class="card border-left-info shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Subscription Expiry date
-                                            </div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                <?php
-                                                    if($return>0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-success">'.date('d-m-y  h:i:s',$return).'</div>';
-                                                    }else if($return<0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-danger">'.date('d-m-y  h:i:s',$return).'</div>';
+                                                     <a href="api_gen_key.php?api_key_gen" class="btn btn-sm btn-primary shadow-sm">
+                                                     <i class="fa fa-retweet fa-sm text-white-50"></i> Change Key</a>
+                                                    ';
                                                     }else{
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-secondary">NOT SUBSCRIBED</div>';
+                                                        echo '
+                                                        <br/><br/>
+                                                        <a href="api_gen_key.php?api_key_gen" class="btn btn-sm btn-primary shadow-sm">
+                                                        <i class="fa fa-retweet fa-sm text-white-50"></i> Generate Key</a>
+                                                        ';
                                                     }
-                                                ?>
+                                                    ?>
                                                 </div>
                                             </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-user-lock fa-2x text-gray-300"></i>
+                                            </div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Content Row -->
-                    <div class="row" style="visibility: visible;">
-                        <!-- Area Chart -->
-                        <div class="col-12 col-lg-12">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -375,17 +354,13 @@
                             <!-- Approach -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">SILENT WOLF</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
                                 </div>
                                 <div class="card-body">
                                     <p>
-                                        Financial analyst depend heavily on either news releases by companies, central banks, hedge funds etc OR on technicals to make financial predictions.
-                                        This is more often done manually by analysts by finding patterns between large set of data.<br/><br>
-                                        
-                                        Statistics shows that data is growing exponentially and hence the need for a faster computation and analysis power. It is with doubt that computers
-                                        will be much suitable for this. <br><br>
-                                        SILENT WOLF is a trading BOT designed based on Machine learning, Deep learning and complex neural network algorithms to make predictions on price data.
-                                        Not just that, Natural Language Processing is also used to analysis news and natural languages of speeches, tweets, social media data, etc.
+                                      This API Token is a secret unique code that allows you to communicate directly with our databases from other applications
+                                      such as MetaTrader4 or Metatrader5 and all other integrated systems.
+                                      We will not be liable for any inconveniences caused as a result of leakage of this Key since it is your responsible to keep it as confidential as possible.
                                     </p>
                                     <p class="mb-0">
                                         SILENT WOLF has been tested and proved to provide over 50% profit in just a month. 

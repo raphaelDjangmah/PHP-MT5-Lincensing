@@ -1,5 +1,8 @@
 <?php
     session_start();
+    
+    //--declare NULL return variable incase of payment making
+    $return = NULL;
 
     if(isset($_GET['logout'])){
         logout();
@@ -12,11 +15,44 @@
         $email = $_SESSION['user_logged_in'];
     }
 
-    //getting the subscription details
-    //save subscription details to database
-    require_once('../../ACC-Backend/Subscription.php');
-    $subs    = new Subscriptions();
-    $return  = intval($subs->subscription_status($email));
+    //get the prices and the amounts
+     if(!isset($_GET['make_payment']) && !isset($_GET['package'])){
+       header('location:subscribe.php');
+    }else{
+
+        $package_type = (isset($_GET['make_payment']))?intval($_GET['make_payment']):intval($_GET['package']);
+        $amount = 0;
+        $days = 0;
+        
+        switch($package_type){
+            case 1:
+                $amount = 50;
+                $days = 30;
+                break;
+            case 2:
+                $amount = 100;
+                $days = 90;
+                break;
+            case 3:
+                $amount = 300;
+                $days = 365;
+                break;
+            default:
+                //unknown error
+                header('location:subscribe.php');
+        }
+
+        //-- make payment if the need be
+        if(isset($_GET['make_payment'])){
+            
+            //save subscription details to database
+            require_once('../../ACC-Backend/Subscription.php');
+            $subs    = new Subscriptions();
+            $return  = $subs->subscribe($email,$amount,$days,TRUE);
+        }else{
+            $package_type = intval($_GET['package']);
+        }
+    }
 
     function logout(){
         //-- destroy all sessions and redirect to login page
@@ -26,7 +62,6 @@
         header('location:../signinsignup/login.php');
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -57,7 +92,8 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul style="background:#213b52" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul style="background:#213b52" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+            id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="user_dashboard.php">
@@ -71,7 +107,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item ">
                 <a class="nav-link" href="user_dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -86,7 +122,7 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item" >
+            <li class="nav-item active">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
@@ -101,6 +137,7 @@
                 </div>
             </li>
 
+            
               <!-- Nav Item - Pages Collapse Menu -->
               <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
@@ -138,12 +175,12 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                
+
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="user_dashboard.php?logout" 
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-arrow-left"></i>
                     <span>Logout</span>
@@ -168,6 +205,30 @@
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Search for..." aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
 
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
@@ -227,8 +288,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $email;?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg" style="color:red">
+                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg" style="color:red">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -255,120 +315,77 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                        <h1 class="h3 mb-0 text-gray-800">Confirm Subscription</h1>
                     </div>
+
+                    <?php
+                        if($return!=NULL){
+                            if($return==1){
+                                echo "<div class='alert alert-success' >Payment made successfully. Go to <a href='user_dashboard.php' class='alert-link'>Dashboard</a>.</div>";
+                            }else{
+                                echo "<div class='alert alert-danger' >".$return."</a>.</div>";
+                            }
+                        }
+                    ?>
 
                     <!-- Content Row -->
                     <div class="row">
-
                         <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                PnL By BOT</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">$0.00</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="col-12  mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Subscription Status</div>
-                                                <?php
-                                                    if($return>0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-success">ACTIVE</div>';
-                                                    }else if($return<0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-danger"> EXPIRED </div>';
-                                                    }else{
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-secondary">NOT SUBSCRIBED</div>';
-                                                    }
-                                                ?>
-                                                
+                                                <?php echo $days ?> DAYS SUBSCRIPTION</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">$<?php echo $amount ?></div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+                                </div> <br>
 
+                                <form class="mx-2 navbar-search">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-address-card fa-sm"></i>
+                                            </button>
+                                        </div>
 
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-4 col-md-12 mb-4">
-                            <div class="card border-left-info shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Subscription Expiry date
-                                            </div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                <?php
-                                                    if($return>0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-success">'.date('d-m-y  h:i:s',$return).'</div>';
-                                                    }else if($return<0){
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-danger">'.date('d-m-y  h:i:s',$return).'</div>';
-                                                    }else{
-                                                        echo '<div class="h5 mb-0 font-weight-bold text-secondary">NOT SUBSCRIBED</div>';
-                                                    }
-                                                ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Card Number" aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                    </div><br>
+
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Card CV" aria-label="Search" aria-describedby="basic-addon2">
+                                    </div> <br>
+
+                                    <div class="input-group">
+                                        <input type="date" class="form-control bg-light border-0 small"
+                                            placeholder="Expiry Date" aria-label="Search"
+                                            aria-describedby="basic-addon2">
+                                    </div> <br>
+
+                                    <center>
+                                        <form action="user_dashoard.php" method="POST">
+                                            <button name="make_payment" value=<?php echo $package_type;?> class="btn btn-lg btn-success">
+                                                CONFIRM PURCHASE
+                                                <i class="fas fa-check-circle fa-sm"></i>
+                                            </button>
+                                        </form>
+                                    </center>
+
+                                </form>
                             </div>
                         </div>
                     </div>
 
                     <!-- Content Row -->
-                    <div class="row" style="visibility: visible;">
-                        <!-- Area Chart -->
-                        <div class="col-12 col-lg-12">
-                            <div class="card shadow mb-4">
-                                <!-- Card Header - Dropdown -->
-                                <div
-                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                                    <div class="dropdown no-arrow">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Content Row -->
-                    <div class="row">
+                    <div class="row" style="visibility: collapse;">
 
                         <!-- Content Column -->
                         <div class="col-12 mb-4">
@@ -379,16 +396,11 @@
                                 </div>
                                 <div class="card-body">
                                     <p>
-                                        Financial analyst depend heavily on either news releases by companies, central banks, hedge funds etc OR on technicals to make financial predictions.
-                                        This is more often done manually by analysts by finding patterns between large set of data.<br/><br>
-                                        
-                                        Statistics shows that data is growing exponentially and hence the need for a faster computation and analysis power. It is with doubt that computers
-                                        will be much suitable for this. <br><br>
-                                        SILENT WOLF is a trading BOT designed based on Machine learning, Deep learning and complex neural network algorithms to make predictions on price data.
-                                        Not just that, Natural Language Processing is also used to analysis news and natural languages of speeches, tweets, social media data, etc.
+                                        We provide you with the best exclusive offers even with 
                                     </p>
                                     <p class="mb-0">
-                                        SILENT WOLF has been tested and proved to provide over 50% profit in just a month. 
+                                        SILENT WOLF has been tested and proved to provide over 50% profit in just a
+                                        month.
                                         Subscribe to our service and enjoy it all.
                                     </p>
                                 </div>
@@ -424,6 +436,9 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
+    <script>
+        $('.alert').alert()
+    </script>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>

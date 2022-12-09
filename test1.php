@@ -1,9 +1,28 @@
-<?php
+<!DOCTYPE html>
+<html>
+<body>
 
+<p>Click on the button to copy the text from the text field. Try to paste the text (e.g. ctrl+v) afterwards in a different window, to see the effect.</p>
 
-    $password = "dasilva";
-    $password_b = 'my-password';
+<input type="text" value="Hello World" id="myInput">
+<button onclick="myFunction()">Copy text</button>
 
-    echo password_verify($password,'$2y$10$QQITUK/U41x.PASzVac7GeoDhR7cZ1qYyar2SP2b6bqEI6sM9KUs2');
-    echo "<br>";
-    echo password_verify($password_b,'$2y$10$QQITUK/U41x.PASzVac7GeoDhR7cZ1qYyar2SP2b6bqEI6sM9KUs2');
+<script>
+function myFunction() {
+  // Get the text field
+  var copyText = "hello"
+
+//   // Select the text field
+//   copyText.select();
+//   copyText.setSelectionRange(0, 99999); // For mobile devices
+
+  // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText);
+  
+  // Alert the copied text
+  alert("COPIED! " + copyText);
+}
+</script>
+
+</body>
+</html>

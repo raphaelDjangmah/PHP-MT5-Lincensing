@@ -1,3 +1,26 @@
+<?php
+    session_start();
+
+    if(isset($_GET['logout'])){
+        logout();
+    }
+    
+    //make sure the email exists
+    if(!isset($_SESSION['user_logged_in'])){
+        header('location:../signinsignup/login.php');
+    }else{
+        $email = $_SESSION['user_logged_in'];
+    }
+
+    function logout(){
+        //-- destroy all sessions and redirect to login page
+        session_unset();
+        session_destroy();
+
+        header('location:../signinsignup/login.php');
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,7 +54,7 @@
         <ul style="background:#213b52" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="user_dashboard.php">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-robot"></i>
                 </div>
@@ -43,7 +66,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item ">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="user_dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -68,8 +91,23 @@
                         <h6 class="collapse-header">Subscriptions</h6>
                         <a class="collapse-item" href="#">Subscribe</a>
                         <a class="collapse-item" href="#">Subscription status</a>
-                        <a class="collapse-item" href="#">API Token</a>
                     </div>
+                </div>
+            </li>
+
+            
+              <!-- Nav Item - Pages Collapse Menu -->
+              <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+                    aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>API</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">API Token</h6>
+                        <a class="collapse-item" href="api_show_key.php">Show my API</a>
+                        <a class="collapse-item" href="api_gen_key.php">Generate API</a>
                 </div>
             </li>
 
@@ -77,7 +115,7 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                     aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-wrench"></i>
+                    <i class="fas fa-fw fa-user"></i>
                     <span>My Profile</span>
                 </a>
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
@@ -207,7 +245,7 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">raphael@gmail.com</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $email;?></span>
                                 <img class="img-profile rounded-circle"
                                     src="img/undraw_profile.svg" style="color:red">
                             </a>
@@ -219,7 +257,7 @@
                                     Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal">
+                                <a class="dropdown-item" href="user_dashboard.php?logout">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -239,14 +277,16 @@
                     <div class="row">
 
                         <!-- Earnings (Monthly) Card Example -->
+                        <!-- SOLVE CHALLENGE OF NOT PASSING IT THROUGH A GETTER WHERE PRICE AND PACKAGE CAN BE EASILY ALTERED -->
                         <div class="col-12 col-12 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
-                                <a href="" style="text-decoration: none;">
+                                <a href="package_subscription.php?package=1" style="text-decoration: none;">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
                                             <div class="col mr-2">
                                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                    30 DAYS SUBSCRIPTION</div>
+                                                    30 DAYS SUBSCRIPTION
+                                                </div>
                                                 <div class="h5 mb-0 font-weight-bold text-gray-800">$50.00</div>
                                             </div>
                                             <div class="col-auto">
@@ -261,7 +301,7 @@
                          <!-- Earnings (Monthly) Card Example -->
                          <div class="col-12 col-12 mb-4">
                             <div class="card border-left-success shadow h-100 py-2">
-                                <a href="" style="text-decoration: none;">
+                                <a href="package_subscription.php?package=2" style="text-decoration: none;">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
                                             <div class="col mr-2">
@@ -282,7 +322,7 @@
                          <!-- Earnings (Monthly) Card Example -->
                          <div class="col-12 col-12 mb-4">
                             <div class="card border-left-danger shadow h-100 py-2">
-                                <a href="" style="text-decoration: none;">
+                                <a href="package_subscription.php?package=3" style="text-decoration: none;">
                                     <div class="card-body">
                                         <div class="row no-gutters align-items-center">
                                             <div class="col mr-2">

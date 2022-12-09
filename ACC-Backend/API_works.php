@@ -45,7 +45,7 @@
             return (string)$token;
         }
 
-        public function saveToken($email, $save_or_update=True){
+        public function saveToken($email){
 
             //-- generated token will be returned upon successfull.. else error
 
@@ -95,11 +95,11 @@
             $result_number = mysqli_num_rows($result);
 
             if($save_or_update && $result_number > 0 ){
-                return "Token already exists this account";
+                $save_or_update=FALSE;
             }
 
             if(!$save_or_update && $result_number <= 0 ){
-                return "No Token exists";
+                 $save_or_update=TRUE;
             }
 
             // we either update or save new to database
@@ -163,10 +163,71 @@
 
             return $mail;   
         }
+
+        public function showAPI($email){
+            
+            //-- generated token will be returned upon successfull.. else error
+
+            $db = new DbConnect(); 
+            $connection = $db->connect();
+            $table_name = "user_tokens";
+            
+            if($db->get_conn_id() != 1){
+                return "Database Connection Failed\n".$db->get_conn_text();
+            }
+
+            //-- sanitizing strings
+            $email    = htmlspecialchars(strip_tags($email));
+
+            if(empty($email)){
+                return "NULL values not allowed";
+            }
+
+
+
+            //making the email exists
+            $e_query = sprintf("SELECT * FROM %s WHERE EMAIL=?","user_registration");
+            $obj_ = $connection->prepare($e_query);
+            $obj_->bind_param("s",$email);
+
+            if(!$obj_->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result_ = $obj_->get_result();
+            $result_number_ = mysqli_num_rows($result_);
+
+            if($result_number_ == 0 ){
+                return "Account does not exist";
+            }
+
+            // we either update or save new to database
+            $query = sprintf("SELECT TOKEN FROM %s WHERE EMAIL=?","user_tokens");
+            $stmt = $connection->prepare($query);
+            $stmt->bind_param("s",$email);
+
+            if(!$stmt->execute()){
+                return "An unknown error occured!";
+            }
+
+            $result = $stmt->get_result();
+            $result_number = mysqli_num_rows($result);
+
+            if($result_number <= 0){
+                return -1;
+            }
+
+            $key = "";
+            while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
+                $key = $row[0];
+            }
+
+            return $key;
+        }
     }
 
-    $api = new API();
+    // $api = new API();
 
-    //echo $api->saveToken('raphael@gmail.com',true);
+    // echo $api->showAPI('raphael@gmail.com');
     // //echo "<br/>";
     // echo $api->verifyToken('f33ed08a7dc42fc71f93c5c892810a3b98fd415a9018184b6641bbf07b538ec7');

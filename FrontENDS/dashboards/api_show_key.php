@@ -1,3 +1,41 @@
+<?php
+    session_start();
+
+    if(isset($_GET['logout'])){
+        logout();
+    }
+    
+    //make sure the email exists
+    if(!isset($_SESSION['user_logged_in'])){
+        header('location:../signinsignup/login.php');
+    }else{
+        $email = $_SESSION['user_logged_in'];
+    }
+
+    //get the api key
+    //save subscription details to database
+    require_once('../../ACC-Backend/API_works.php');
+    $subs    = new API();
+    $return  = $subs->showAPI($email);
+    $api = "";
+
+    if($return<0){
+        $api = "NO API Key Generated";
+    }else{
+        $api = $return;
+    }
+
+
+
+    function logout(){
+        //-- destroy all sessions and redirect to login page
+        session_unset();
+        session_destroy();
+
+        header('location:../signinsignup/login.php');
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,11 +66,10 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul style="background:#213b52" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
-            id="accordionSidebar">
+        <ul style="background:#213b52" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="user_dashboard.php">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-robot"></i>
                 </div>
@@ -44,7 +81,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item ">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="user_dashboard.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -58,7 +95,7 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-cog"></i>
@@ -67,10 +104,25 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Subscriptions</h6>
-                        <a class="collapse-item" href="#">Subscribe</a>
+                        <a class="collapse-item" href="subscribe.php">Subscribe</a>
                         <a class="collapse-item" href="#">Subscription status</a>
-                        <a class="collapse-item" href="#">API Token</a>
                     </div>
+                </div>
+            </li>
+
+            
+              <!-- Nav Item - Pages Collapse Menu -->
+              <li class="nav-item active">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+                    aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>API</span>
+                </a>
+                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">API Token</h6>
+                        <a class="collapse-item" href="">Show my API</a>
+                        <a class="collapse-item" href="api_gen_key.php">Generate API</a>
                 </div>
             </li>
 
@@ -78,7 +130,7 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                     aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-wrench"></i>
+                    <i class="fas fa-fw fa-user"></i>
                     <span>My Profile</span>
                 </a>
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
@@ -96,12 +148,12 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-
+                
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
+                <a class="nav-link collapsed" href="api_show_key.php?logout" 
                     aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-arrow-left"></i>
                     <span>Logout</span>
@@ -114,7 +166,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
 
             <!-- Main Content -->
-            <div id="content">
+            <div id="content"> 
 
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -208,8 +260,9 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">raphael@gmail.com</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg" style="color:red">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $email;?></span>
+                                <img class="img-profile rounded-circle"
+                                    src="img/undraw_profile.svg" style="color:red">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -219,7 +272,7 @@
                                     Activity Log
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal">
+                                <a class="dropdown-item" href="user_dashboard.php?logout">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -233,87 +286,54 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Confirm Subscription</h1>
-                    </div>
-
-                    <div class="alert alert-success"  id="payment_made" style="visibility: hidden;">
-                        Payment made successfully. Go to <a href="user_dashboard.php" class="alert-link">Dashboard</a>.
-                      </div>
+                    <h4 class="h3 mb-0 text-gray-500">API SETTINGS</h4> <br>
 
                     <!-- Content Row -->
                     <div class="row">
+
                         <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-12  mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                30 DAYS SUBSCRIPTION</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">$50.00</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        <!-- SOLVE CHALLENGE OF NOT PASSING IT THROUGH A GETTER WHERE PRICE AND PACKAGE CAN BE EASILY ALTERED -->
+                        <div class="col-12 col-12 mb-4">
+                            <div class="card border-left-light shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    YOUR API TOKEN
+                                                </div>
+                                                <div id="api_key" class="h5 mb-0 font-weight-bold text-gray-800" >
+                                                    <?php echo $api ?>
+                                                </div>
+                                            </div>
+                                            <a>
+                                            <div class="col-auto">
+                                                <i class="fas fa-copy fa-2x text-dark-300"></i>
+                                            </div>
+                                            </a>
                                         </div>
                                     </div>
-                                </div> <br>
-
-                                <form class="mx-2 navbar-search">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-address-card fa-sm"></i>
-                                            </button>
-                                        </div>
-
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Card Number" aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                    </div><br>
-
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Card CV" aria-label="Search" aria-describedby="basic-addon2">
-                                    </div> <br>
-
-                                    <div class="input-group">
-                                        <input type="date" class="form-control bg-light border-0 small"
-                                            placeholder="Expiry Date" aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                    </div> <br>
-
-                                    <center>
-                                        <button name="make_payment" class="btn btn-lg btn-success" onclick="document.getElementById('payment_made').style.visibility = 'visible';">
-                                            CONFIRM PURCHASE
-                                            <i class="fas fa-check-circle fa-sm"></i>
-                                        </button>
-                                    </center>
-
-                                </form>
                             </div>
                         </div>
                     </div>
 
                     <!-- Content Row -->
-                    <div class="row" style="visibility: collapse;">
+                    <div class="row">
 
                         <!-- Content Column -->
                         <div class="col-12 mb-4">
                             <!-- Approach -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">SILENT WOLF</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
                                 </div>
                                 <div class="card-body">
                                     <p>
-                                        We provide you with the best exclusive offers even with 
+                                      This API Token is a secret unique code that allows you to communicate directly with our databases from other applications
+                                      such as MetaTrader4 or Metatrader5 and all other integrated systems.
+                                      We will not be liable for any inconveniences caused as a result of leakage of this Key since it is your responsible to keep it as confidential as possible.
                                     </p>
                                     <p class="mb-0">
-                                        SILENT WOLF has been tested and proved to provide over 50% profit in just a
-                                        month.
+                                        SILENT WOLF has been tested and proved to provide over 50% profit in just a month. 
                                         Subscribe to our service and enjoy it all.
                                     </p>
                                 </div>
@@ -350,8 +370,23 @@
     </a>
 
     <script>
-        $('.alert').alert()
+        document.write('hello - africa');
+        function copyToClipboard() {
+            // Get the text field
+            var copyText = document.getElementById("api_key");
+
+            // Select the text field
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text inside the text field
+            navigator.clipboard.writeText(copyText.value);
+            
+            // Alert the copied text
+            alert("COPIED! " + copyText.value);
+        }   
     </script>
+
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
