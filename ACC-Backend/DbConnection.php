@@ -15,15 +15,15 @@ class DBConnect{
 
 
     //remote database details
-    // $this->hostname = 'us-cdbr-east-06.cleardb.net';
-    // $this->user     = 'b7e4d9fa3f95b6';             
-    // $this->pass     = '9e4314ab';                   
-    // $this->dbname   = 'heroku_481e0448f352958';     
+    $this->hostname = 'us-cdbr-east-06.cleardb.net';
+    $this->user     = 'b7e4d9fa3f95b6';             
+    $this->pass     = '9e4314ab';                   
+    $this->dbname   = 'heroku_481e0448f352958';     
 
-      $this->hostname = "localhost";
-      $this->user     = "root";
-      $this->pass     = "";
-      $this->dbname   = "mql5_licensing";
+      // $this->hostname = "localhost";
+      // $this->user     = "root";
+      // $this->pass     = "";
+      // $this->dbname   = "mql5_licensing";
 
       $this->connection = new mysqli($this->hostname, $this->user,$this->pass,$this->dbname);
 
