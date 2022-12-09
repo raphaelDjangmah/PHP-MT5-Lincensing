@@ -18,10 +18,17 @@
 
         //-- login
         $user = new USERS();
-        return $user->verify_user($email,$password);
+        $login = $user->verify_user($email,$password);
+
+        if($login=="1"){
+            session_start();
+            $_SESSION['user_logged_in'] = $email;
+        }
+    
+        return $login;
 
     }
 
 
 //--redirecting back to page with details
-header('location:../FrontENDS/signinsignup/login.php?login_check_message='+login_checker())
+header('location:../FrontENDS/signinsignup/login.php?login_check_message='.login_checker());

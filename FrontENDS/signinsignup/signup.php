@@ -44,7 +44,7 @@
 										echo "<p style='color:lime'>Account created Successfull</p>";
 											
 										//--redirect to homepage
-										header('location:../dashboard/user_dashboard.html');
+										header('location:../dashboards/user_dashboard.php');
 									}
 								}
 							?>
