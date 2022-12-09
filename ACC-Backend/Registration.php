@@ -83,7 +83,7 @@
             }
 
             //-- get email and password
-            $dup_query = sprintf("SELECT PASSWORD FROM %s WHERE EMAIL=?",$table_name);
+            $dup_query = sprintf("SELECT PASSWORD,USER_TYPE FROM %s WHERE EMAIL=?",$table_name);
             $obj = $connection->prepare($dup_query);
             $obj->bind_param("s",$email);
 
@@ -98,16 +98,24 @@
             }
 
             $hashed = "";
+            $acc_type = 0;
             //-- verify hashed password
             while ($row = mysqli_fetch_array($result, MYSQLI_NUM)) {
                 $hashed = $row[0];
+                $acc_type = $row[1];
             }
             
             if(!password_verify($password,$hashed)){
                 return "Password Incorrect";
             }
 
+            //-- if it is an admin account type, return 11;
+            if($acc_type==1){
+                return 11;
+            }
+
             return 1;
+
 
         }
     }

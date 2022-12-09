@@ -1,5 +1,11 @@
 <?php session_start();
 	if(isset($_SESSION['user_logged_in'])){
+		//--redirect to homepage
+		if(isset($_SESSION['acc_type'])){
+			header('location:../dashboards/admin_dashboard.php');
+			return;
+		}
+
 		header('location:../dashboards/user_dashboard.php');
 	}
 ?>
@@ -43,7 +49,7 @@
 							<?php
 								if(isset($_GET['login_check_message'])){
 									//-- if 1 then successfully logged in
-									if($_GET['login_check_message']!='1'){
+									if($_GET['login_check_message']!='1' || $_GET['login_check_message']!='11'){
 										echo $_GET['login_check_message'];
 									}else{
 										//--get if the session exists
@@ -51,6 +57,11 @@
 											echo "<p style='color:lime'>Login Successfull</p>";
 											
 											//--redirect to homepage
+											if(isset($_SESSION['acc_type'])){
+												header('location:../dashboards/admin_dashboard.php');
+												return;
+											}
+
 											header('location:../dashboards/user_dashboard.php');
 										}
 									}

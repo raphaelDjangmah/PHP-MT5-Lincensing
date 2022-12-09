@@ -19,14 +19,18 @@
         //-- login
         $user = new USERS();
         $login = $user->verify_user($email,$password);
+        
 
-        if($login=="1"){
+        if($login==1 || $login==11){
             session_start();
             $_SESSION['user_logged_in'] = $email;
-        }
-    
-        return $login;
 
+            if($login==11){
+                $_SESSION['acc_type'] = 1;
+            }
+        }
+
+        return $login;
     }
 
 
