@@ -374,12 +374,11 @@
                                                 }
 
                                                 $date = ($var->user_details($arr[$counter],6)=="None")?"None":date('d/m/y',$var->user_details($arr[$counter],6));
-
                                                 echo "<tr>";
                                                 echo '<td>'.$arr[$counter].'</td>';
                                                 echo '<td>'.$var->user_details($arr[$counter],1).'</td>';
                                                 echo '<td>'.$var->user_details($arr[$counter],3).'</td>';
-                                                echo '<td>'.$status.'</td>';
+                                                echo '<td>'.$var->user_details($arr[$counter],4).'</td>';
                                                 echo '<td>'.$var->user_details($arr[$counter],5).'</td>';
                                                 echo '<td>'.$date.'</td>';
                                                 echo "</tr>";
