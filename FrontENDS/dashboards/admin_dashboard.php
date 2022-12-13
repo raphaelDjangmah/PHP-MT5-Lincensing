@@ -365,12 +365,13 @@
                                             while($counter<count($arr)){
                                                 $status = $var->user_details($arr[$counter],4);
                                                 
-                                                if($status > 0){
-                                                    $status = "ACTIVE";
+
+                                                if($status == "None"){
+                                                    $status = "Not Subscribed";
                                                 }else if($status < 0){
                                                     $status = "EXPIRED";
                                                 }else{
-                                                    $status = "Not Subscribed";
+                                                    $status = "ACTIVE";
                                                 }
 
                                                 $date = ($var->user_details($arr[$counter],6)=="None")?"None":date('d/m/y',$var->user_details($arr[$counter],6));
