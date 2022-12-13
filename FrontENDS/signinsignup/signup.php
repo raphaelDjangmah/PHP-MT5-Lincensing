@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Login V1</title>
+<title>Licensing Signup</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="FrontENDS/assets/img/favicon.png" rel="icon">
+  <link href="FrontENDS/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	

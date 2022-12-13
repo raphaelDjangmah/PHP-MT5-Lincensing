@@ -32,7 +32,13 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Dashboard</title>
+    <title>Subscribe</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="FrontENDS/assets/img/favicon.png" rel="icon">
+    <link href="FrontENDS/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
