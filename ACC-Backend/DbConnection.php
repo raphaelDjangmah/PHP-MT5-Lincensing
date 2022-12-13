@@ -13,7 +13,6 @@ class DBConnect{
 
   public function connect(){
 
-
     //remote database details
     $this->hostname = 'us-cdbr-east-06.cleardb.net';
     $this->user     = 'b7e4d9fa3f95b6';             

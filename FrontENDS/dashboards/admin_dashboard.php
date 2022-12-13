@@ -363,13 +363,11 @@
                                             $counter = 0;
                                             
                                             while($counter<count($arr)){
-
-                                                echo $status;
-
                                                 $status = $var->user_details($arr[$counter],4);
-                                                if($status>0){
+                                                
+                                                if($status > 0){
                                                     $status = "ACTIVE";
-                                                }else if($status <0){
+                                                }else if($status < 0){
                                                     $status = "EXPIRED";
                                                 }else{
                                                     $status = "Not Subscribed";
